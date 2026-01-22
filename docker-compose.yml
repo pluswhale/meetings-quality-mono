@@ -1,5 +1,4 @@
 services:
-  # MongoDB Database
   mongodb:
     image: mongo:7
     container_name: meetings-quality-mongodb
@@ -11,8 +10,12 @@ services:
       - MONGO_INITDB_DATABASE=meetings-quality
     networks:
       - meetings-network
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Backend API
   backend:
     build:
       context: ./backend
@@ -28,13 +31,12 @@ services:
       - PORT=4000
       - MONGODB_URI=mongodb://mongodb:27017/meetings-quality
       - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-      - JWT_EXPIRATION=7d
       - FRONTEND_URL=http://209.38.214.211:3000
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     networks:
       - meetings-network
-    restart: unless-stopped
 
   # Frontend Application
   frontend:
