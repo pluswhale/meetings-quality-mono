@@ -12,12 +12,7 @@ services:
       - MONGO_INITDB_DATABASE=meetings-quality
     networks:
       - meetings-network
-    healthcheck:
-      test: ["CMD-SHELL", "mongo --eval 'db.runCommand({ ping: 1 })' || exit 1"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
+    restart: unless-stopped
 
   backend:
     build:
@@ -36,8 +31,7 @@ services:
       - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
       - FRONTEND_URL=http://209.38.214.211:3000
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - mongodb
     networks:
       - meetings-network
     restart: unless-stopped
