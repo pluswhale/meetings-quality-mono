@@ -1,0 +1,96 @@
+================================================================================
+  🚀 QUICK DEPLOY GUIDE FOR DROPLET 209.38.214.211
+================================================================================
+
+WHAT YOU GET:
+  Frontend: http://209.38.214.211      (port 80)
+  API Docs: http://209.38.214.211/api  (through nginx)
+
+================================================================================
+  📋 COMMANDS TO RUN ON YOUR DROPLET
+================================================================================
+
+1. Open firewall for port 80:
+   
+   sudo ufw allow 80/tcp
+   sudo ufw status
+
+2. Navigate to your project:
+   
+   cd /path/to/meetings-quality-mono
+
+3. Deploy:
+   
+   docker compose down
+   docker compose up -d --build
+
+4. Watch logs to verify:
+   
+   docker compose logs -f
+
+5. Check all containers are running:
+   
+   docker compose ps
+
+You should see 4 containers:
+  ✅ meetings-quality-mongodb
+  ✅ meetings-quality-backend
+  ✅ meetings-quality-frontend  
+  ✅ meetings-quality-nginx
+
+================================================================================
+  🌐 ACCESS YOUR APP
+================================================================================
+
+Open in browser: http://209.38.214.211
+
+That's it! 🎉
+
+================================================================================
+  🔧 IF SOMETHING GOES WRONG
+================================================================================
+
+Check logs:
+  docker compose logs -f nginx
+  docker compose logs -f backend
+  docker compose logs -f frontend
+
+Restart services:
+  docker compose restart
+
+Full rebuild:
+  docker compose down
+  docker compose up -d --build
+
+Check firewall:
+  sudo ufw status
+
+================================================================================
+  📁 FILES CHANGED
+================================================================================
+
+Created:
+  ✅ nginx/nginx.conf           - Nginx configuration
+  ✅ NGINX_SETUP.md             - Detailed setup guide
+
+Modified:
+  ✅ docker-compose.yml          - Added nginx service
+  ✅ frontend/Dockerfile         - Fixed startup command
+  ✅ backend/src/main.ts         - Updated CORS for nginx
+
+================================================================================
+  ℹ️  HOW IT WORKS
+================================================================================
+
+Internet → Nginx (port 80) → Frontend (port 3000)
+                           → Backend API (port 4000)
+                           → WebSocket
+
+All traffic goes through nginx on port 80.
+Ports 3000 and 4000 are not exposed externally (more secure).
+
+================================================================================
+
+For more details, read: NGINX_SETUP.md
+
+================================================================================

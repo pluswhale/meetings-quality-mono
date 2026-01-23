@@ -14,47 +14,61 @@ services:
       - meetings-network
     restart: unless-stopped
 
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: meetings-quality-backend
-  #   ports:
-  #     - "4000:4000"
-  #   volumes:
-  #     - ./backend:/app
-  #     - /app/node_modules
-  #   environment:
-  #     - NODE_ENV=development
-  #     - PORT=4000
-  #     - MONGODB_URI=mongodb://mongodb:27017/meetings-quality
-  #     - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-  #     - FRONTEND_URL=http://209.38.214.211:3000
-  #   depends_on:
-  #     - mongodb
-  #   networks:
-  #     - meetings-network
-  #   restart: unless-stopped
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: meetings-quality-backend
+    expose:
+      - "4000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongodb:27017/meetings-quality
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - FRONTEND_URL=http://209.38.214.211
+    depends_on:
+      - mongodb
+    networks:
+      - meetings-network
+    restart: unless-stopped
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: meetings-quality-frontend
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   environment:
-  #     - VITE_API_URL=http://209.38.214.211:4000
-  #     - VITE_WS_URL=ws://209.38.214.211:4000
-  #     - DOCKER_ENV=true
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - meetings-network
-  #   restart: unless-stopped
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: meetings-quality-frontend
+    expose:
+      - "3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://209.38.214.211/api
+      - VITE_WS_URL=ws://209.38.214.211/socket.io
+      - DOCKER_ENV=true
+    depends_on:
+      - backend
+    networks:
+      - meetings-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: meetings-quality-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - meetings-network
+    restart: unless-stopped
 
 volumes:
   mongodb_data:
